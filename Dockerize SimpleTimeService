@@ -1,0 +1,33 @@
+Here's a Dockerfile that follows best practices to dockerize your SimpleTimeService, ensuring the application runs as a non-root user:
+# Use a minimal Python base image
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Create a non-root user
+RUN useradd --create-home appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy app code and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app/ ./app
+
+# Change ownership of app files to the non-root user
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose the port your app will run on
+EXPOSE 8080
+
+# Command to run the app
+CMD ["python", "app/main.py"]
+
+
